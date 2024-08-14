@@ -1,4 +1,4 @@
-const { isTokenExpire } = require("../utils/isTokenExpried");
+const { isTokenExpire } = require("../utils/token");
 
 const setAuthHeader = async (req, res, next) => {
   try {

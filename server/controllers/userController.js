@@ -1,13 +1,13 @@
-const Users = require("../models/User");
+const Users = require("../models/auth/User");
 const bcrypt = require("bcrypt");
+const { sendEmailVerificationOTP } = require("../utils/mail");
+const EmailVerification = require("../models/auth/EmailVerification");
 const {
-  sendEmailVerificationOTP,
-} = require("../utils/sendEmailVerificationOTP");
-const EmailVerification = require("../models/EmailVerification");
-const { generateToken } = require("../utils/generateToken");
-const { setTokenCookies } = require("../utils/setTokenCookies");
-const { refreshAccessToken } = require("../utils/refreshAccessToken");
-const UserRefreshToken = require("../models/UserRefreshToken");
+  generateToken,
+  setTokenCookies,
+  refreshAccessToken,
+} = require("../utils/token");
+const UserRefreshToken = require("../models/auth/UserRefreshToken");
 const jwt = require("jsonwebtoken");
 const transporter = require("../config/emailConfig");
 
@@ -15,8 +15,8 @@ class UserController {
   // User Registration
   async userRegistration(req, res) {
     try {
-      const { username, email, password, password_confirmation } = req.body;
-      if (!username || !email || !password || !password_confirmation) {
+      const { name, email, password, password_confirmation } = req.body;
+      if (!name || !email || !password || !password_confirmation) {
         return res
           .status(400)
           .json({ status: "failed", message: "All fields are required" });
@@ -37,7 +37,7 @@ class UserController {
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await new Users({
-        username,
+        name,
         email,
         password: hashedPassword,
       }).save();
@@ -176,7 +176,7 @@ class UserController {
         user: {
           id: user._id,
           email: user.email,
-          username: user.username,
+          name: user.name,
           roles: user.roles[0],
         },
         status: "success",
@@ -232,7 +232,8 @@ class UserController {
   // Profile OR Logged in User
 
   async userProfile(req, res) {
-    res.send({ user: req.user });
+    const user = req.user;
+    return res.status(200).json(user);
   }
 
   // Change password
@@ -301,7 +302,7 @@ class UserController {
         form: process.env.EMAIL_FROM,
         to: user.email,
         subject: "Password Reset Link",
-        html: `<p>Hello ${user.username}</p><p>Please <a href="${resetLink}">click here</a> to reset your password</p>`,
+        html: `<p>Hello ${user.name}</p><p>Please <a href="${resetLink}">click here</a> to reset your password</p>`,
       });
 
       return res.status(200).json({

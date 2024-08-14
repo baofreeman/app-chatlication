@@ -1,6 +1,8 @@
-const { isTokenExpire } = require("../utils/isTokenExpried");
-const { refreshAccessToken } = require("../utils/refreshAccessToken");
-const { setTokenCookies } = require("../utils/setTokenCookies");
+const {
+  isTokenExpire,
+  refreshAccessToken,
+  setTokenCookies,
+} = require("../utils/token");
 
 const accessTokenAutoRefresh = async (req, res, next) => {
   try {

@@ -3,9 +3,11 @@ const app = express();
 const cors = require("cors");
 const passport = require("passport");
 const authRouter = require("./routers/auth");
+const chatRouter = require("./routers/chats");
+const messageRouter = require("./routers/messages");
 require("./config/passport-jwt-strategy.js");
 const cookieParser = require("cookie-parser");
-const { setTokenCookies } = require("./utils/setTokenCookies.js");
+const { setTokenCookies } = require("./utils/token");
 require("./config/google-strategy.js");
 
 const corsOptions = {
@@ -20,6 +22,8 @@ app.use(passport.initialize());
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
+app.use("/api/chats", chatRouter);
+app.use("/api/messages", messageRouter);
 
 app.get(
   "/auth/google",
